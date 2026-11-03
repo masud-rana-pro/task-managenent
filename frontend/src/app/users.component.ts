@@ -35,7 +35,7 @@ export class UsersComponent implements OnInit {
   users: User[] = []; managers: User[] = []; query = ''; error = ''; notice = ''; editing = false; saving = false;
   page = 0; totalPages = 0; totalElements = 0; form: any = {};
   constructor(private api: ApiService) {}
-  ngOnInit(): void { this.load(); this.api.users('').subscribe(r => this.managers = r.content.filter((u: User) => u.role === 'MANAGER' && u.active)); }
+  ngOnInit(): void { this.load(); this.api.users('', 0, 100).subscribe(r => this.managers = r.content.filter((u: User) => u.role === 'MANAGER' && u.active)); }
   searchChanged(): void { this.page = 0; this.load(); }
   load(): void { this.api.users(this.query, this.page).subscribe({ next: r => { this.users = r.content; this.totalPages = r.totalPages; this.totalElements = r.totalElements; }, error: () => this.error = 'Could not load users.' }); }
   open(): void { this.form = { role: 'EMPLOYEE', active: true }; this.editing = true; this.error = ''; this.notice = ''; }
