@@ -30,6 +30,8 @@ Requirements: JDK 17, Maven 3.9+, Node.js 16 (Angular 13 compatible), npm, and M
 4. Start Angular: `cd frontend && npm install && npm start` (default port 4200).
 5. Sign in with one of the demo accounts listed below. The backend initializer creates sample users and tasks with BCrypt encoded passwords when `SEED_DEMO_DATA=true` (default). Set it to `false` for an environment where demo credentials must not be created.
 
+For a database-free local UI/API preview, run the backend with the `demo` Spring profile (`$env:SPRING_PROFILES_ACTIVE='demo'; mvn spring-boot:run` in PowerShell, or `SPRING_PROFILES_ACTIVE=demo mvn spring-boot:run` on macOS/Linux). This profile uses an in-memory H2 database and seeds the same demo accounts. It is only for local preview; the submitted application and deployment use MySQL 8.
+
 Angular API URL: set `environment.apiUrl` in `frontend/src/environments/environment.ts`; production builds use `environment.prod.ts`.
 
 ## Environment variables
@@ -63,12 +65,12 @@ All endpoints except login require `Authorization: Bearer <token>`. Admin user m
 |---|---|---|---|
 | `POST` | `/api/auth/login` | Public | `{ "email", "password" }` -> token, role, name, email, id |
 | `POST` | `/api/auth/register` | Admin | Create a user |
+| `GET` | `/api/users/team` | Manager, Admin | Active employees in a manager's team (admin sees all active employees) |
 | `GET` | `/api/users?page=0&size=10&search=` | Admin | Paginated user search |
 | `GET` | `/api/users/{id}` | Admin | User details |
 | `POST` | `/api/users` | Admin | Create user |
 | `PUT` | `/api/users/{id}` | Admin | Edit user/role/team/active state |
 | `DELETE` | `/api/users/{id}` | Admin | Soft-deactivate user |
-| `GET` | `/api/users/team` | Manager, Admin | Active employees in the manager's team (admin sees all active employees) |
 | `POST` | `/api/tasks` | Manager, Admin | Assign to an active employee; managers can only assign to own team |
 | `GET` | `/api/tasks?status=&priority=&assigneeId=` | Authenticated | Role-scoped tasks with filters |
 | `GET` | `/api/tasks/{id}` | Authenticated | Own task, own team task, or admin |
@@ -89,6 +91,11 @@ Task statuses: `PENDING`, `IN_PROGRESS`, `DONE`. Priorities: `LOW`, `MEDIUM`, `H
 - ER diagram: [`docs/er-diagram.drawio`](docs/er-diagram.drawio)
 - Mermaid diagram source: [`docs/diagrams.md`](docs/diagrams.md)
 - Setup and API documentation: this file
+- UI screenshots: [`docs/screenshots/`](docs/screenshots/)
+- Requirement-by-requirement map: [`docs/REQUIREMENTS_CHECKLIST.md`](docs/REQUIREMENTS_CHECKLIST.md)
+- Interview walkthrough: [`docs/INTERVIEW_GUIDE.md`](docs/INTERVIEW_GUIDE.md)
+
+The live URLs and public GitHub repository are added here after deployment and publication. Until then, the production API URL in `frontend/src/environments/environment.prod.ts` is a placeholder.
 
 ## Deployment notes
 
@@ -99,9 +106,9 @@ Configure `DB_URL`, `DB_USERNAME`, `DB_PASSWORD`, a unique random Base64 `JWT_SE
 The PDF allows any free MySQL cloud service. Use Aiven's always-free MySQL tier instead of Railway: it requires no card, has no time limit, and includes up to 1 GB storage. The service can be powered off after extended inactivity and may need to be restarted. Render's free web service and Netlify's free plan can be used without adding a payment method; when their free usage limits are reached they pause or suspend service instead of charging without a payment method.
 
 1. Create an Aiven MySQL 8 free service and import `schema.sql` into its database.
-2. Create the Render API from the root `render.yaml` Blueprint. Supply Aiven's host/port in the JDBC `DB_URL` (`jdbc:mysql://HOST:PORT/DATABASE?sslmode=require&serverTimezone=UTC`), plus `DB_USERNAME`, `DB_PASSWORD`, and the Netlify origin in `CORS_ALLOWED_ORIGINS`. The Blueprint generates `JWT_SECRET`, sets `DDL_AUTO=validate`, and disables runtime demo seeding because the SQL schema already seeds the demo accounts.
-3. After Render finishes, copy its `onrender.com` API address into `frontend/src/environments/environment.prod.ts` as `apiUrl`, including `/api`.
-4. Import the repository into Netlify. The root `netlify.toml` sets the frontend base directory, production build command, output directory, and SPA fallback. Set CORS to the final Netlify URL in Render after Netlify assigns it.
+2. Import the repository into Netlify and assign the site a unique name. The root `netlify.toml` sets the frontend base directory, production build command, output directory, and SPA fallback. Note the final `netlify.app` origin; the placeholder API URL can be used for this first static build.
+3. Create the Render API from the root `render.yaml` Blueprint. Supply Aiven's host/port in the JDBC `DB_URL` (`jdbc:mysql://HOST:PORT/DATABASE?sslmode=require&serverTimezone=UTC`), plus `DB_USERNAME`, `DB_PASSWORD`, and the final Netlify origin in `CORS_ALLOWED_ORIGINS`. The Blueprint generates `JWT_SECRET`, sets `DDL_AUTO=validate`, and disables runtime demo seeding because the SQL schema already seeds the demo accounts.
+4. After Render finishes, copy its `onrender.com` API address into `frontend/src/environments/environment.prod.ts` as `apiUrl`, including `/api`, then push the change so Netlify rebuilds the frontend.
 5. Verify login, role-based routes, task scoping, and PDF download on the live URLs. Keep the documented demo accounts available for the candidate evaluation.
 
 Netlify's Free plan has a monthly hard usage limit; sites pause if that allowance is exhausted. Render's free web service may spin down after inactivity. Both behaviors stay within the no-card/no-extra-charge requirement.
