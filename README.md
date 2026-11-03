@@ -94,6 +94,16 @@ Task statuses: `PENDING`, `IN_PROGRESS`, `DONE`. Priorities: `LOW`, `MEDIUM`, `H
 
 Configure `DB_URL`, `DB_USERNAME`, `DB_PASSWORD`, a unique random Base64 `JWT_SECRET`, `CORS_ALLOWED_ORIGINS`, `DDL_AUTO=validate`, and `SEED_DEMO_DATA=false` in the backend host. Build Angular with `npm run build`; publish `frontend/dist/frontend` from Netlify and set the production API URL before building. Add an SPA fallback redirect to `/index.html`. Deploy backend using `mvn -DskipTests package` and run `java -jar target/mini-employee-task-management-1.0.0.jar`. Never publish production secrets or commit `.env` files.
 
+### Selected hosting path (A)
+
+1. Create a MySQL 8 service in Railway and import `schema.sql` into its database.
+2. Create the Render API from the root `render.yaml` Blueprint. Supply Railway's public MySQL host/port in a JDBC `DB_URL` (`jdbc:mysql://HOST:PORT/DATABASE?useSSL=true&serverTimezone=UTC`), plus `DB_USERNAME`, `DB_PASSWORD`, and the Netlify origin in `CORS_ALLOWED_ORIGINS`. The Blueprint generates `JWT_SECRET`, sets `DDL_AUTO=validate`, and disables runtime demo seeding because the SQL schema already seeds the demo accounts.
+3. After Render finishes, copy its `onrender.com` API address into `frontend/src/environments/environment.prod.ts` as `apiUrl`, including `/api`.
+4. Import the repository into Netlify. The root `netlify.toml` sets the frontend base directory, production build command, output directory, and SPA fallback. Set CORS to the final Netlify URL in Render after Netlify assigns it.
+5. Verify login, role-based routes, task scoping, and PDF download on the live URLs. Keep the documented demo accounts available for the candidate evaluation.
+
+Railway MySQL usage may exceed its included credit depending on runtime and plan. Check the Railway project's usage cap before creating the database service.
+
 ## Security and implementation notes
 
 - DTOs keep persistence entities out of the API contract.

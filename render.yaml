@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: fifotech-task-management-api
+    runtime: docker
+    plan: free
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    envVars:
+      - key: DB_URL
+        sync: false
+      - key: DB_USERNAME
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: CORS_ALLOWED_ORIGINS
+        sync: false
+      - key: DDL_AUTO
+        value: validate
+      - key: SEED_DEMO_DATA
+        value: "false"
