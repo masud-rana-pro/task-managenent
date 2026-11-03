@@ -1,0 +1,39 @@
+{
+  "info": {
+    "_postman_id": "777aa34c-6df2-4422-b419-6af352f50b5e",
+    "name": "FIFOTech Mini Employee & Task Management",
+    "description": "Run Login first; the returned JWT is stored as {{token}}. Change {{baseUrl}} for a deployed API.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {"key":"baseUrl","value":"http://localhost:8080"},
+    {"key":"token","value":""},
+    {"key":"taskId","value":"1"},
+    {"key":"employeeId","value":"3"}
+  ],
+  "item": [
+    {"name":"Auth","item":[
+      {"name":"Login (admin)","request":{"method":"POST","header":[{"key":"Content-Type","value":"application/json"}],"body":{"mode":"raw","raw":"{\n  \"email\": \"admin@demo.com\",\n  \"password\": \"Admin@123\"\n}"},"url":"{{baseUrl}}/api/auth/login"},"event":[{"listen":"test","script":{"exec":["const data = pm.response.json();","if (data.token) pm.collectionVariables.set('token', data.token);","pm.test('Login returns JWT', () => pm.expect(data.token).to.be.a('string'));"]}}]},
+      {"name":"Register employee (admin)","request":{"method":"POST","header":[{"key":"Content-Type","value":"application/json"}],"body":{"mode":"raw","raw":"{\n  \"fullName\": \"New Employee\",\n  \"email\": \"new.employee@example.com\",\n  \"password\": \"Employee@123\",\n  \"role\": \"EMPLOYEE\",\n  \"managerId\": 2\n}"},"url":"{{baseUrl}}/api/auth/register","auth":{"type":"bearer","bearer":[{"key":"token","value":"{{token}}","type":"string"}]}}}
+    ]},
+    {"name":"Users (admin)","auth":{"type":"bearer","bearer":[{"key":"token","value":"{{token}}","type":"string"}]},"item":[
+      {"name":"List users","request":{"method":"GET","url":"{{baseUrl}}/api/users?page=0&size=10&search="}},
+      {"name":"Create manager","request":{"method":"POST","header":[{"key":"Content-Type","value":"application/json"}],"body":{"mode":"raw","raw":"{\n  \"fullName\": \"Team Manager\",\n  \"email\": \"manager2@example.com\",\n  \"password\": \"Manager@123\",\n  \"role\": \"MANAGER\"\n}"},"url":"{{baseUrl}}/api/users"}},
+      {"name":"Get user","request":{"method":"GET","url":"{{baseUrl}}/api/users/3"}},
+      {"name":"Update user","request":{"method":"PUT","header":[{"key":"Content-Type","value":"application/json"}],"body":{"mode":"raw","raw":"{\n  \"fullName\": \"Employee One Updated\",\n  \"email\": \"emp1@demo.com\",\n  \"role\": \"EMPLOYEE\",\n  \"managerId\": 2,\n  \"active\": true\n}"},"url":"{{baseUrl}}/api/users/3"}},
+      {"name":"Deactivate user","request":{"method":"DELETE","url":"{{baseUrl}}/api/users/4"}}
+    ]},
+    {"name":"Tasks","auth":{"type":"bearer","bearer":[{"key":"token","value":"{{token}}","type":"string"}]},"item":[
+      {"name":"Create task (manager/admin)","request":{"method":"POST","header":[{"key":"Content-Type","value":"application/json"}],"body":{"mode":"raw","raw":"{\n  \"title\": \"Prepare weekly report\",\n  \"description\": \"Summarize the team's progress.\",\n  \"priority\": \"HIGH\",\n  \"deadline\": \"2026-11-04\",\n  \"assignedToId\": {{employeeId}}\n}"},"url":"{{baseUrl}}/api/tasks"}},
+      {"name":"List tasks with filters","request":{"method":"GET","url":"{{baseUrl}}/api/tasks?status=PENDING&priority=HIGH&assigneeId={{employeeId}}"}},
+      {"name":"Get task","request":{"method":"GET","url":"{{baseUrl}}/api/tasks/{{taskId}}"}},
+      {"name":"Update task (manager/admin)","request":{"method":"PUT","header":[{"key":"Content-Type","value":"application/json"}],"body":{"mode":"raw","raw":"{\n  \"title\": \"Prepare updated report\",\n  \"description\": \"Updated details\",\n  \"priority\": \"MEDIUM\",\n  \"deadline\": \"2026-11-05\",\n  \"assignedToId\": {{employeeId}}\n}"},"url":"{{baseUrl}}/api/tasks/{{taskId}}"}},
+      {"name":"Update own task status (employee)","request":{"method":"PUT","header":[{"key":"Content-Type","value":"application/json"}],"body":{"mode":"raw","raw":"{\n  \"status\": \"IN_PROGRESS\"\n}"},"url":"{{baseUrl}}/api/tasks/{{taskId}}/status"}},
+      {"name":"Delete task (admin)","request":{"method":"DELETE","url":"{{baseUrl}}/api/tasks/{{taskId}}"}}
+    ]},
+    {"name":"Dashboard & reports","auth":{"type":"bearer","bearer":[{"key":"token","value":"{{token}}","type":"string"}]},"item":[
+      {"name":"Dashboard stats","request":{"method":"GET","url":"{{baseUrl}}/api/dashboard/stats"}},
+      {"name":"Download task PDF (manager/admin)","request":{"method":"GET","url":"{{baseUrl}}/api/reports/tasks/pdf"}}
+    ]}
+  ]
+}
