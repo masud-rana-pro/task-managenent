@@ -25,7 +25,7 @@ export class ApiService {
   tasks(filters: {status?: string; priority?: string; assigneeId?: string} = {}): Observable<Task[]> { let p = new HttpParams(); Object.entries(filters).forEach(([k,v]) => { if (v) p = p.set(k, v); }); return this.http.get<Task[]>(`${this.base}/tasks`, { params: p }); }
   createTask(task: Partial<Task>): Observable<Task> { return this.http.post<Task>(`${this.base}/tasks`, task); }
   updateStatus(id: number, status: TaskStatus): Observable<Task> { return this.http.put<Task>(`${this.base}/tasks/${id}/status`, { status }); }
-  users(search = '', page = 0): Observable<any> { return this.http.get<any>(`${this.base}/users`, { params: { search, page, size: 100 } }); }
+  users(search = '', page = 0): Observable<any> { return this.http.get<any>(`${this.base}/users`, { params: { search, page, size: 10 } }); }
   team(): Observable<User[]> { return this.http.get<User[]>(`${this.base}/users/team`); }
   saveUser(user: any, id?: number): Observable<User> { return id ? this.http.put<User>(`${this.base}/users/${id}`, user) : this.http.post<User>(`${this.base}/users`, user); }
   deleteUser(id: number): Observable<void> { return this.http.delete<void>(`${this.base}/users/${id}`); }

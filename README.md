@@ -84,7 +84,10 @@ Task statuses: `PENDING`, `IN_PROGRESS`, `DONE`. Priorities: `LOW`, `MEDIUM`, `H
 
 - Database schema: [`schema.sql`](schema.sql)
 - API requests: [`postman/FIFOTech-Task-Management.postman_collection.json`](postman/FIFOTech-Task-Management.postman_collection.json)
-- UML use case, class, and ER diagrams: [`docs/diagrams.md`](docs/diagrams.md)
+- UML use case diagram: [`docs/use-case.drawio`](docs/use-case.drawio)
+- UML class diagram: [`docs/class-diagram.drawio`](docs/class-diagram.drawio)
+- ER diagram: [`docs/er-diagram.drawio`](docs/er-diagram.drawio)
+- Mermaid diagram source: [`docs/diagrams.md`](docs/diagrams.md)
 - Setup and API documentation: this file
 
 ## Deployment notes
